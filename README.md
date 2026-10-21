@@ -31,20 +31,18 @@ tests/live/                        contract checks against the live MCP server
 ## Develop
 
 ```bash
-corepack enable
-yarn install
-yarn test        # package layout, listing limits, skills, review cases, secret scan
-yarn test:live   # tool annotations and descriptions served by pixly.gg/api/mcp
-yarn pack        # dist/pixly.zip from the committed plugins/pixly tree; upload this ZIP to the portal
+npm test             # package layout, listing limits, skills, review cases, secret scan
+npm run test:live    # tool annotations and descriptions served by pixly.gg/api/mcp
+npm run package      # dist/pixly.zip from the committed plugins/pixly tree; upload it to the portal
 ```
 
-The `publish` CI job uploads the same package as the `pixly-plugin` artifact; the downloaded artifact ZIP is the file to upload.
+The `publish` CI job unpacks that ZIP into the `pixly-plugin` artifact, so the downloaded artifact ZIP has the same contents and can be uploaded instead.
 
 To try local changes in Codex, add the checkout as a marketplace: `codex plugin marketplace add ./`.
 
 ## Public repository rules
 
-Nothing secret belongs here: no API keys, OAuth client secrets, reviewer credentials, internal hostnames or personal contact details. Reviewer credentials and any OAuth client configuration are entered in the submission portal, never committed. `yarn test` scans every tracked and untracked file and fails on credentials, credential files, AWS identifiers and email addresses.
+Nothing secret belongs here: no API keys, OAuth client secrets, reviewer credentials, internal hostnames or personal contact details. Reviewer credentials and any OAuth client configuration are entered in the submission portal, never committed. `npm test` scans every tracked and untracked file and fails on credentials, credential files, AWS identifiers, private network addresses, internal hostnames and email addresses. PNG assets must carry no metadata chunks.
 
 ## Support
 

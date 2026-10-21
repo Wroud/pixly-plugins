@@ -1,12 +1,11 @@
 import assert from "node:assert/strict";
 import { before, describe, test } from "node:test";
-import { readJson } from "../files.mjs";
+import { mcpConfig, review } from "../plugin.mjs";
 
 const HINTS = ["readOnlyHint", "destructiveHint", "openWorldHint"];
 const MIN_DESCRIPTION_LENGTH = 40;
 
-const [server] = Object.values(readJson("plugins/pixly/.mcp.json").mcpServers);
-const reviewCases = readJson("plugins/pixly/.codex-plugin/plugin.json").extensions["com.openai"].review.test_cases;
+const [server] = Object.values(mcpConfig.mcpServers);
 
 async function rpc(id, method, params) {
   const response = await fetch(server.url, {
@@ -52,7 +51,7 @@ describe(`tools served by ${server.url}`, () => {
   test("read-only tools are never marked destructive", () => {
     const contradictory = tools
       .filter((tool) => tool.annotations?.readOnlyHint === true)
-      .filter((tool) => tool.annotations?.destructiveHint !== false)
+      .filter((tool) => tool.annotations?.destructiveHint === true)
       .map((tool) => tool.name);
     assert.deepEqual(contradictory, []);
   });
@@ -66,7 +65,7 @@ describe(`tools served by ${server.url}`, () => {
 
   test("every tool named in the review cases exists", () => {
     const names = new Set(tools.map((tool) => tool.name));
-    const unknown = reviewCases.positive
+    const unknown = review.test_cases.positive
       .flatMap((testCase) => testCase.tools_triggered.split(",").map((name) => name.trim()))
       .filter((name) => !names.has(name));
     assert.deepEqual(unknown, []);

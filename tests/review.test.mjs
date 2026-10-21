@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { readJson } from "./files.mjs";
+import { review } from "./plugin.mjs";
 
-const review = readJson("plugins/pixly/.codex-plugin/plugin.json").extensions["com.openai"].review;
 const cases = review.test_cases;
 
 test("exactly five positive cases with every review field", () => {
@@ -10,8 +9,7 @@ test("exactly five positive cases with every review field", () => {
   for (const testCase of cases.positive) {
     assert.ok(testCase.description);
     assert.ok(testCase.prompt);
-    assert.equal(typeof testCase.tools_triggered, "string", testCase.prompt);
-    assert.ok(testCase.tools_triggered.length > 0, testCase.prompt);
+    assert.match(testCase.tools_triggered, /\S/, testCase.prompt);
     assert.ok(testCase.expected_behavior);
   }
 });

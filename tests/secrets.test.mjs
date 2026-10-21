@@ -19,12 +19,12 @@ const SECRET_PATTERNS = [
   ["client secret field", /client_?secret"?\s*[:=]\s*"[^"]+"/i],
   ["password field", /pass(word)?"?\s*[:=]\s*"[^"]+"/i],
   ["bearer credential", /\bBearer\s+[0-9A-Za-z._~+/-]{20,}/],
+  ["private network address", /\b(10|192\.168|172\.(1[6-9]|2\d|3[01]))(\.\d{1,3}){2,3}\b/],
+  ["internal hostname", /\.(local|internal|lan)\b/],
   ["email address", /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/],
 ];
 
 const FORBIDDEN_NAMES = [/^\.env(\..*)?$/, /\.pem$/, /\.p12$/, /\.key$/, /^id_[a-z0-9]+$/];
-const BINARY_EXTENSIONS = /\.(png|jpe?g|gif|webp|ico|zip)$/i;
-const SCANNER_ITSELF = "tests/secrets.test.mjs";
 
 const files = repoFiles();
 
@@ -38,10 +38,11 @@ test("no credential files are present", () => {
 test("no file contains a credential, internal address or personal email", () => {
   const findings = [];
   for (const file of files) {
-    if (file === SCANNER_ITSELF || BINARY_EXTENSIONS.test(file)) {
+    const bytes = readFileSync(join(repoRoot, file));
+    if (bytes.includes(0)) {
       continue;
     }
-    const text = readFileSync(join(repoRoot, file), "utf8");
+    const text = bytes.toString("utf8");
     for (const [label, pattern] of SECRET_PATTERNS) {
       if (pattern.test(text)) {
         findings.push(`${file}: ${label}`);

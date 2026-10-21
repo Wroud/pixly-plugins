@@ -3,14 +3,13 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { describe, test } from "node:test";
 import { readJson, repoRoot } from "./files.mjs";
+import { PLUGIN_DIR, manifest, mcpConfig } from "./plugin.mjs";
 
-const PLUGIN_DIR = "plugins/pixly";
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_IMAGE_PX = 4096;
 const MIN_ICON_PX = 48;
+const PNG_CHUNKS_WITHOUT_METADATA = new Set(["IHDR", "PLTE", "tRNS", "IDAT", "IEND"]);
 
-const manifest = readJson(`${PLUGIN_DIR}/.codex-plugin/plugin.json`);
-const mcpConfig = readJson(`${PLUGIN_DIR}/.mcp.json`);
 const marketplace = readJson(".agents/plugins/marketplace.json");
 const listing = manifest.interface;
 
@@ -21,6 +20,20 @@ function pluginPath(path) {
   assert.ok(!inside.startsWith(".."), `${path} escapes the plugin root`);
   assert.ok(existsSync(absolute), `${path} does not exist`);
   return absolute;
+}
+
+function checkedImage(path) {
+  const absolute = pluginPath(path);
+  assert.ok(statSync(absolute).size <= MAX_IMAGE_BYTES, path);
+  return imageSize(absolute);
+}
+
+function pngChunks(bytes) {
+  const chunks = [];
+  for (let offset = 8; offset < bytes.length; offset += 12 + bytes.readUInt32BE(offset)) {
+    chunks.push(bytes.toString("ascii", offset + 4, offset + 8));
+  }
+  return chunks;
 }
 
 function luminance(hex) {
@@ -58,8 +71,8 @@ describe("Codex package layout", () => {
     assert.ok(manifest.version);
     assert.ok(manifest.description);
     assert.ok(manifest.author.name);
-    assert.ok(pluginPath(manifest.skills));
-    assert.ok(pluginPath(manifest.mcpServers));
+    pluginPath(manifest.skills);
+    pluginPath(manifest.mcpServers);
   });
 
   test(".codex-plugin holds only the manifest", () => {
@@ -119,19 +132,25 @@ describe("OpenAI listing limits", () => {
 
   test("icons are square and within the image limits", () => {
     for (const key of ["logo", "composerIcon"]) {
-      const absolute = pluginPath(listing[key]);
-      assert.ok(statSync(absolute).size <= MAX_IMAGE_BYTES, key);
-      const { width, height, vector } = imageSize(absolute);
+      const { width, height, vector } = checkedImage(listing[key]);
       assert.equal(width, height, `${key} is not square`);
       if (!vector) {
         assert.ok(width >= MIN_ICON_PX && width <= MAX_IMAGE_PX, key);
       }
     }
     for (const screenshot of listing.screenshots) {
-      const absolute = pluginPath(screenshot);
-      assert.ok(statSync(absolute).size <= MAX_IMAGE_BYTES, screenshot);
-      const { width, height } = imageSize(absolute);
+      const { width, height } = checkedImage(screenshot);
       assert.ok(width <= MAX_IMAGE_PX && height <= MAX_IMAGE_PX, screenshot);
+    }
+  });
+
+  test("PNG assets carry no metadata chunks", () => {
+    const assetsDir = join(repoRoot, PLUGIN_DIR, "assets");
+    for (const file of readdirSync(assetsDir).filter((name) => name.endsWith(".png"))) {
+      const extra = pngChunks(readFileSync(join(assetsDir, file))).filter(
+        (chunk) => !PNG_CHUNKS_WITHOUT_METADATA.has(chunk),
+      );
+      assert.deepEqual(extra, [], file);
     }
   });
 

@@ -19,9 +19,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-      - run: corepack enable
-      - run: yarn install --immutable
-      - run: yarn test
+      - run: npm test
 
   test-live-mcp:
     runs-on: ubuntu-latest
@@ -30,17 +28,19 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-      - run: corepack enable
-      - run: yarn install --immutable
-      - run: yarn test:live
+      - run: npm run test:live
 
   publish:
     needs: test
-    if: github.event_name != 'schedule' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - run: mkdir -p dist/pixly && git archive HEAD:plugins/pixly | tar -x -C dist/pixly
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npm run package
+      - run: unzip -q dist/pixly.zip -d dist/pixly
       - uses: actions/upload-artifact@v4
         with:
           name: pixly-plugin
