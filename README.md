@@ -20,12 +20,12 @@ enabled = true
 ```
 .agents/plugins/marketplace.json   Codex marketplace listing this repository's plugins
 plugins/pixly/
-  plugin.json                      Agent Plugins manifest; OpenAI listing under extensions."com.openai"
-  mcp.json                         the remote Pixly MCP server
+  .codex-plugin/plugin.json        manifest and directory listing
+  .mcp.json                        the remote Pixly MCP server
   skills/pixly/SKILL.md            how to use the Pixly tools
   assets/                          logo and composer icon
 review/test-cases.json             positive and negative cases for directory review
-tests/                             package checks (offline except schema download)
+tests/                             package checks (offline)
 tests/live/                        contract checks against the live MCP server
 ```
 
@@ -34,10 +34,12 @@ tests/live/                        contract checks against the live MCP server
 ```bash
 corepack enable
 yarn install
-yarn test        # manifests, listing limits, skills, review cases, secret scan
+yarn test        # package layout, listing limits, skills, review cases, secret scan
 yarn test:live   # tool annotations and descriptions served by pixly.gg/api/mcp
-yarn pack        # dist/pixly.zip from the committed plugins/pixly tree
+yarn pack        # dist/pixly.zip from the committed plugins/pixly tree; upload this ZIP to the portal
 ```
+
+The `publish` CI job uploads the same package as the `pixly-plugin` artifact; the downloaded artifact ZIP is the file to upload.
 
 To try local changes in Codex, add the checkout as a marketplace: `codex plugin marketplace add ./`.
 

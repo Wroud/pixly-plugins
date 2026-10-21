@@ -1,20 +1,18 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
-import { before, describe, test } from "node:test";
-import Ajv2020 from "ajv/dist/2020.js";
-import { fetchJson, readJson, repoRoot } from "./files.mjs";
+import { describe, test } from "node:test";
+import { readJson, repoRoot } from "./files.mjs";
 
 const PLUGIN_DIR = "plugins/pixly";
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_IMAGE_PX = 4096;
 const MIN_ICON_PX = 48;
 
-const manifest = readJson(`${PLUGIN_DIR}/plugin.json`);
-const mcpConfig = readJson(`${PLUGIN_DIR}/mcp.json`);
+const manifest = readJson(`${PLUGIN_DIR}/.codex-plugin/plugin.json`);
+const mcpConfig = readJson(`${PLUGIN_DIR}/.mcp.json`);
 const marketplace = readJson(".agents/plugins/marketplace.json");
-const openai = manifest.extensions["com.openai"];
-const listing = openai.interface;
+const listing = manifest.interface;
 
 function pluginPath(path) {
   assert.match(path, /^\.\//, `${path} must start with ./`);
@@ -40,29 +38,19 @@ function imageSize(absolute) {
   assert.fail(`${absolute} is not a PNG or SVG`);
 }
 
-describe("manifests match the Agent Plugins schemas", () => {
-  let ajv;
-
-  before(async () => {
-    ajv = new Ajv2020({ allErrors: true, strict: false });
-    for (const kind of ["plugin", "mcp"]) {
-      ajv.addSchema(
-        await fetchJson(`https://agent-plugins.org/schemas/1.0.0/${kind}.schema.json`),
-      );
-    }
+describe("Codex package layout", () => {
+  test("the manifest identifies the plugin", () => {
+    assert.match(manifest.name, /^[a-z0-9]+(-[a-z0-9]+)*$/);
+    assert.ok(manifest.version);
+    assert.ok(manifest.description);
+    assert.ok(manifest.author.name);
+    assert.ok(pluginPath(manifest.skills));
+    assert.ok(pluginPath(manifest.mcpServers));
   });
 
-  for (const [kind, document] of [
-    ["plugin", manifest],
-    ["mcp", mcpConfig],
-  ]) {
-    test(`${kind}.json`, () => {
-      const validate = ajv.getSchema(
-        `https://agent-plugins.org/schemas/1.0.0/${kind}.schema.json`,
-      );
-      assert.ok(validate(document), JSON.stringify(validate.errors, null, 2));
-    });
-  }
+  test(".codex-plugin holds only the manifest", () => {
+    assert.deepEqual(readdirSync(join(repoRoot, PLUGIN_DIR, ".codex-plugin")), ["plugin.json"]);
+  });
 });
 
 describe("OpenAI listing limits", () => {
@@ -127,8 +115,8 @@ describe("OpenAI listing limits", () => {
   });
 
   test("the package declares nothing the public directory rejects", () => {
-    assert.equal(openai.hooks, undefined);
-    assert.equal(openai.apps, undefined);
+    assert.equal(manifest.hooks, undefined);
+    assert.equal(manifest.apps, undefined);
     assert.ok(!existsSync(join(repoRoot, PLUGIN_DIR, "hooks")));
     assert.ok(!existsSync(join(repoRoot, PLUGIN_DIR, ".app.json")));
   });
@@ -140,7 +128,7 @@ describe("MCP server", () => {
   test("exactly one remote HTTPS server with no headers", () => {
     assert.equal(servers.length, 1);
     const [server] = servers;
-    assert.equal(server.type, "streamable-http");
+    assert.equal(server.type, "http");
     assert.equal(new URL(server.url).protocol, "https:");
     assert.equal(server.headers, undefined);
   });
@@ -152,7 +140,7 @@ describe("marketplace", () => {
     for (const entry of marketplace.plugins) {
       assert.equal(entry.source.source, "local");
       assert.match(entry.source.path, /^\.\/plugins\//);
-      const entryManifest = readJson(join(entry.source.path, "plugin.json"));
+      const entryManifest = readJson(join(entry.source.path, ".codex-plugin", "plugin.json"));
       assert.equal(entryManifest.name, entry.name);
       assert.ok(
         ["AVAILABLE", "INSTALLED_BY_DEFAULT", "NOT_AVAILABLE"].includes(

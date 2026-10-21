@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "pixly": {
+      "type": "http",
+      "url": "https://pixly.gg/api/mcp"
+    }
+  }
+}

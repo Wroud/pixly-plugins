@@ -5,7 +5,7 @@ import { readJson } from "../files.mjs";
 const HINTS = ["readOnlyHint", "destructiveHint", "openWorldHint"];
 const MIN_DESCRIPTION_LENGTH = 40;
 
-const [server] = Object.values(readJson("plugins/pixly/mcp.json").mcpServers);
+const [server] = Object.values(readJson("plugins/pixly/.mcp.json").mcpServers);
 const reviewCases = readJson("review/test-cases.json");
 
 async function rpc(id, method, params) {

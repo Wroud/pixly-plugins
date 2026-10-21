@@ -17,11 +17,3 @@ export function repoFiles() {
   );
   return output.split("\0").filter(Boolean);
 }
-
-export async function fetchJson(url, init) {
-  const response = await fetch(url, init);
-  if (!response.ok) {
-    throw new Error(`${url} answered ${response.status}`);
-  }
-  return response.json();
-}

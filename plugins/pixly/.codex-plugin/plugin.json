@@ -1,0 +1,36 @@
+{
+  "name": "pixly",
+  "version": "0.1.0",
+  "description": "Create, run and manage your Pixly Minecraft servers.",
+  "author": {
+    "name": "Pixly",
+    "url": "https://pixly.gg"
+  },
+  "homepage": "https://pixly.gg",
+  "repository": "https://github.com/Wroud/pixly-plugins",
+  "license": "MIT",
+  "keywords": ["minecraft", "server", "hosting", "mods", "backups"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Pixly",
+    "shortDescription": "Run Minecraft servers",
+    "longDescription": "Manage the Minecraft servers in your Pixly account. Create a server, start or stop it, change its settings, mods and plugins, read the console, and create or restore backups. Servers sleep when nobody is playing and wake when a player joins.",
+    "developerName": "Pixly",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://pixly.gg",
+    "supportURL": "https://pixly.gg/legal/contact/",
+    "privacyPolicyURL": "https://pixly.gg/legal/privacy/",
+    "termsOfServiceURL": "https://pixly.gg/legal/terms/",
+    "defaultPrompt": [
+      "List my Pixly servers and tell me which ones are running.",
+      "Create a Paper survival server called Weekend SMP.",
+      "Back up my server, then show me its latest console output."
+    ],
+    "brandColor": "#FFC070",
+    "composerIcon": "./assets/composer-icon.svg",
+    "logo": "./assets/logo.png",
+    "screenshots": []
+  }
+}
