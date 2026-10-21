@@ -20,11 +20,10 @@ enabled = true
 ```
 .agents/plugins/marketplace.json   Codex marketplace listing this repository's plugins
 plugins/pixly/
-  .codex-plugin/plugin.json        manifest and directory listing
+  .codex-plugin/plugin.json        manifest, directory listing and review test cases
   .mcp.json                        the remote Pixly MCP server
   skills/pixly/SKILL.md            how to use the Pixly tools
   assets/                          logo and composer icon
-review/test-cases.json             positive and negative cases for directory review
 tests/                             package checks (offline)
 tests/live/                        contract checks against the live MCP server
 ```

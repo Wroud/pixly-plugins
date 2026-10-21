@@ -6,7 +6,7 @@ const HINTS = ["readOnlyHint", "destructiveHint", "openWorldHint"];
 const MIN_DESCRIPTION_LENGTH = 40;
 
 const [server] = Object.values(readJson("plugins/pixly/.mcp.json").mcpServers);
-const reviewCases = readJson("review/test-cases.json");
+const reviewCases = readJson("plugins/pixly/.codex-plugin/plugin.json").extensions["com.openai"].review.test_cases;
 
 async function rpc(id, method, params) {
   const response = await fetch(server.url, {
@@ -67,7 +67,7 @@ describe(`tools served by ${server.url}`, () => {
   test("every tool named in the review cases exists", () => {
     const names = new Set(tools.map((tool) => tool.name));
     const unknown = reviewCases.positive
-      .flatMap((testCase) => testCase.tools_triggered)
+      .flatMap((testCase) => testCase.tools_triggered.split(",").map((name) => name.trim()))
       .filter((name) => !names.has(name));
     assert.deepEqual(unknown, []);
   });

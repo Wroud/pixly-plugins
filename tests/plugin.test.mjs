@@ -23,6 +23,20 @@ function pluginPath(path) {
   return absolute;
 }
 
+function luminance(hex) {
+  assert.match(hex, /^#[0-9A-Fa-f]{6}$/);
+  const [r, g, b] = [1, 3, 5].map((offset) => {
+    const channel = parseInt(hex.slice(offset, offset + 2), 16) / 255;
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrast(first, second) {
+  const [light, dark] = [luminance(first), luminance(second)].sort((a, b) => b - a);
+  return (light + 0.05) / (dark + 0.05);
+}
+
 function imageSize(absolute) {
   const bytes = readFileSync(absolute);
   if (absolute.endsWith(".png")) {
@@ -83,6 +97,13 @@ describe("OpenAI listing limits", () => {
       copy,
       /\$|€|\bprice|\bpricing|\bfree\b|\btrial|\bdiscount|\bsubscri|\bcheap|\bbest\b/i,
     );
+  });
+
+  test("brand colours keep 2:1 contrast against their theme backgrounds", () => {
+    assert.ok(contrast(listing.brandColor, "#FFFFFF") >= 2, listing.brandColor);
+    if (listing.brandColorDark) {
+      assert.ok(contrast(listing.brandColorDark, "#212121") >= 2, listing.brandColorDark);
+    }
   });
 
   test("review URLs are public HTTPS links", () => {

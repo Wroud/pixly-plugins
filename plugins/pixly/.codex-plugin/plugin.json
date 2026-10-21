@@ -1,7 +1,7 @@
 {
   "name": "pixly",
   "version": "0.1.0",
-  "description": "Create, run and manage your Pixly Minecraft servers.",
+  "description": "Host and manage Minecraft servers on Pixly.",
   "author": {
     "name": "Pixly",
     "url": "https://pixly.gg"
@@ -9,16 +9,25 @@
   "homepage": "https://pixly.gg",
   "repository": "https://github.com/Wroud/pixly-plugins",
   "license": "MIT",
-  "keywords": ["minecraft", "server", "hosting", "mods", "backups"],
+  "keywords": [
+    "minecraft",
+    "server",
+    "hosting",
+    "mods",
+    "backups"
+  ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Pixly",
-    "shortDescription": "Run Minecraft servers",
-    "longDescription": "Manage the Minecraft servers in your Pixly account. Create a server, start or stop it, change its settings, mods and plugins, read the console, and create or restore backups. Servers sleep when nobody is playing and wake when a player joins.",
+    "shortDescription": "Host Minecraft servers",
+    "longDescription": "Pixly is a Minecraft server host. This plugin manages the Minecraft servers in your Pixly account: create a server, start or stop it, change its settings, mods and plugins, read the console, and create or restore backups. Servers sleep when nobody is playing and wake when a player joins.",
     "developerName": "Pixly",
     "category": "Productivity",
-    "capabilities": ["Read", "Write"],
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
     "websiteURL": "https://pixly.gg",
     "supportURL": "https://pixly.gg/legal/contact/",
     "privacyPolicyURL": "https://pixly.gg/legal/privacy/",
@@ -28,9 +37,71 @@
       "Create a Paper survival server called Weekend SMP.",
       "Back up my server, then show me its latest console output."
     ],
-    "brandColor": "#FFC070",
+    "brandColor": "#EA9058",
     "composerIcon": "./assets/composer-icon.svg",
     "logo": "./assets/logo.png",
     "screenshots": []
+  },
+  "extensions": {
+    "com.openai": {
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Lists the account's servers and their state",
+              "prompt": "Which of my Pixly Minecraft servers are running right now?",
+              "tools_triggered": "listServers",
+              "expected_behavior": "Calls listServers and answers with each server's name and whether it is running, starting or asleep."
+            },
+            {
+              "description": "Creates a new server without starting it",
+              "prompt": "Create a Paper survival server on Pixly called Weekend SMP.",
+              "tools_triggered": "createServer",
+              "expected_behavior": "Calls createServer with the name Weekend SMP and type PAPER, then explains that the server is asleep until it is started or a player joins."
+            },
+            {
+              "description": "Starts an existing server by name",
+              "prompt": "Start my Weekend SMP server.",
+              "tools_triggered": "listServers, runServerAction",
+              "expected_behavior": "Finds the server with listServers, calls runServerAction with action start, and says the server will be online in a few minutes."
+            },
+            {
+              "description": "Reads recent console output",
+              "prompt": "Show me the latest console output from Weekend SMP.",
+              "tools_triggered": "listServers, getConsoleLogs",
+              "expected_behavior": "Finds the server, calls getConsoleLogs and summarises the recent output, quoting any errors."
+            },
+            {
+              "description": "Backs up a world before a risky change",
+              "prompt": "Back up Weekend SMP before I change its mods.",
+              "tools_triggered": "listServers, createBackup",
+              "expected_behavior": "Finds the server, calls createBackup and confirms the backup was started."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Wallet top-up is not available through the plugin",
+              "prompt": "Add 20 dollars to my Pixly balance.",
+              "expected_behavior": "Calls no tool and tells the user that funds are managed on pixly.gg."
+            },
+            {
+              "description": "Destructive request without a named server and confirmation",
+              "prompt": "Delete my servers.",
+              "expected_behavior": "Does not call deleteServer. Lists the servers and asks the user to confirm which server to delete."
+            },
+            {
+              "description": "Unrelated request",
+              "prompt": "Write a Python function that sorts a list of numbers.",
+              "expected_behavior": "Answers without calling any Pixly tool."
+            }
+          ]
+        },
+        "commerce": false,
+        "commerce_description": "The plugin does not sell products or process payments. Running servers use the balance of the user's existing Pixly account, which is managed on pixly.gg."
+      },
+      "publication": {
+        "release_notes": "Initial release: list, create, start and stop servers, change settings and mods, read the console, and manage backups."
+      }
+    }
   }
 }
