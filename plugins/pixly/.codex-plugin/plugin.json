@@ -62,8 +62,8 @@
             {
               "description": "Starts an existing server by name",
               "prompt": "Start my Weekend SMP server.",
-              "tools_triggered": "listServers, runServerAction",
-              "expected_behavior": "Finds the server with listServers, calls runServerAction with action start, and says the server will be online in a few minutes."
+              "tools_triggered": "listServers, startServer",
+              "expected_behavior": "Finds the server with listServers, calls startServer, and says the server will be online in a few minutes."
             },
             {
               "description": "Reads recent console output",

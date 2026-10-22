@@ -13,10 +13,10 @@ Call `listServers` first and refer to servers by the name the user knows. Use th
 
 ## Server lifecycle
 
-- `createServer` creates a server that is asleep. It does not start it. Call `runServerAction` with `start` when the user wants to play now.
+- `createServer` creates a server that is asleep. It does not start it. Call `startServer` when the user wants to play now.
 - A sleeping server also wakes by itself when a player connects to its address, and goes back to sleep after it has been idle for a while.
 - `keepServerAwake` postpones the idle sleep while the owner is actively working on the server.
-- Starting takes a few minutes. After `start`, check `listServers` again instead of assuming the server is online.
+- Starting takes a few minutes. After `startServer`, check `listServers` again instead of assuming the server is online.
 
 ## Settings, mods and plugins
 
