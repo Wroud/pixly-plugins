@@ -47,4 +47,4 @@ Never perform one of these as a side effect of a different request.
 
 ## Account and billing
 
-Running servers use the balance in the user's Pixly account. These tools cannot add funds or change plans. If a call fails because of the account balance, tell the user to manage their account on pixly.gg.
+Running servers use the balance in the user's Pixly account. These tools cannot add funds or change plans. When the user asks to add funds, or a call fails because of the account balance, say the balance is managed in their Pixly account on pixly.gg; do not link to a billing, top-up or checkout page, suggest an amount to add or describe payment steps.

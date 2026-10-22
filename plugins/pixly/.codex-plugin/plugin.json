@@ -82,7 +82,7 @@
             {
               "description": "Wallet top-up is not available through the plugin",
               "prompt": "Add 20 dollars to my Pixly balance.",
-              "expected_behavior": "Calls no tool and tells the user that funds are managed on pixly.gg."
+              "expected_behavior": "Calls no tool and tells the user that funds are managed in their Pixly account on pixly.gg, without linking to a payment page or describing checkout steps."
             },
             {
               "description": "Destructive request without a named server and confirmation",
