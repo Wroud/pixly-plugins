@@ -54,26 +54,26 @@
               "expected_behavior": "Calls listServers and answers with each server's name and whether it is running, starting or asleep."
             },
             {
-              "description": "Creates a new server without starting it",
-              "prompt": "Create a Paper survival server on Pixly called Weekend SMP.",
-              "tools_triggered": "createServer",
-              "expected_behavior": "Calls createServer with the name Weekend SMP and type PAPER, then explains that the server is asleep until it is started or a player joins."
+              "description": "Creates a new server in the region the user's players need, without starting it",
+              "prompt": "Create a Paper survival server on Pixly called Weekend SMP for players in Germany.",
+              "tools_triggered": "getPricingCatalog, createServer",
+              "expected_behavior": "Calls getPricingCatalog to see the available regions, then createServer with the name Weekend SMP, type PAPER and the Frankfurt region, and explains that the server is asleep until it is started or a player joins."
             },
             {
               "description": "Starts an existing server by name",
-              "prompt": "Start my Weekend SMP server.",
+              "prompt": "Start my Creative Build server.",
               "tools_triggered": "listServers, startServer",
               "expected_behavior": "Finds the server with listServers, calls startServer, and says the server will be online in a few minutes."
             },
             {
               "description": "Reads recent console output",
-              "prompt": "Show me the latest console output from Weekend SMP.",
+              "prompt": "Show me the latest console output from Creative Build.",
               "tools_triggered": "listServers, getConsoleLogs",
               "expected_behavior": "Finds the server, calls getConsoleLogs and summarises the recent output, quoting any errors."
             },
             {
               "description": "Backs up a world before a risky change",
-              "prompt": "Back up Weekend SMP before I change its mods.",
+              "prompt": "Back up Creative Build before I change its mods.",
               "tools_triggered": "listServers, createBackup",
               "expected_behavior": "Finds the server, calls createBackup and confirms the backup was started."
             }
@@ -90,9 +90,9 @@
               "expected_behavior": "Does not call deleteServer. Lists the servers and asks the user to confirm which server to delete."
             },
             {
-              "description": "Unrelated request",
-              "prompt": "Write a Python function that sorts a list of numbers.",
-              "expected_behavior": "Answers without calling any Pixly tool."
+              "description": "Server creation without a region",
+              "prompt": "Create a Minecraft server on Pixly.",
+              "expected_behavior": "Does not call createServer. Asks where the players are or which region to use, since the region cannot be changed later, and what to call the server."
             }
           ]
         },
