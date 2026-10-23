@@ -9,6 +9,6 @@
   "scripts": {
     "test": "node --test 'tests/*.test.mjs'",
     "test:live": "node --test 'tests/live/*.test.mjs'",
-    "package": "rm -rf dist && mkdir -p dist && git archive --format=zip --output=dist/pixly.zip HEAD:plugins/pixly"
+    "package": "rm -rf dist && mkdir -p dist && git archive --format=zip --output=dist/pixly.zip HEAD:plugins/pixly -- .codex-plugin .mcp.json skills assets"
   }
 }

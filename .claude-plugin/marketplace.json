@@ -1,0 +1,14 @@
+{
+  "name": "pixly",
+  "description": "Pixly's plugin for hosting and managing Minecraft servers from Claude.",
+  "owner": {
+    "name": "Pixly",
+    "url": "https://pixly.gg"
+  },
+  "plugins": [
+    {
+      "name": "pixly",
+      "source": "./plugins/pixly"
+    }
+  ]
+}

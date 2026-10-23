@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { describe, test } from "node:test";
 import { readJson, repoRoot } from "./files.mjs";
-import { PLUGIN_DIR, manifest, mcpConfig } from "./plugin.mjs";
+import { PLUGIN_DIR, claudeManifest, manifest, mcpConfig } from "./plugin.mjs";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_IMAGE_PX = 4096;
@@ -11,6 +11,8 @@ const MIN_ICON_PX = 48;
 const PNG_CHUNKS_WITHOUT_METADATA = new Set(["IHDR", "PLTE", "tRNS", "IDAT", "IEND"]);
 
 const marketplace = readJson(".agents/plugins/marketplace.json");
+const claudeMarketplace = readJson(".claude-plugin/marketplace.json");
+
 const listing = manifest.interface;
 
 function pluginPath(path) {
@@ -75,8 +77,10 @@ describe("Codex package layout", () => {
     pluginPath(manifest.mcpServers);
   });
 
-  test(".codex-plugin holds only the manifest", () => {
-    assert.deepEqual(readdirSync(join(repoRoot, PLUGIN_DIR, ".codex-plugin")), ["plugin.json"]);
+  test(".codex-plugin and .claude-plugin each hold only the manifest", () => {
+    for (const dir of [".codex-plugin", ".claude-plugin"]) {
+      assert.deepEqual(readdirSync(join(repoRoot, PLUGIN_DIR, dir)), ["plugin.json"], dir);
+    }
   });
 });
 
@@ -216,4 +220,30 @@ describe("skills", () => {
       assert.ok(fields.description.length > 0 && fields.description.length <= 1024);
     });
   }
+});
+
+describe("Claude package layout", () => {
+  test("the Claude manifest describes the same plugin as the Codex one", () => {
+    const fromListing = { displayName: listing.displayName, privacyPolicyUrl: listing.privacyPolicyURL };
+    for (const [field, value] of Object.entries(claudeManifest)) {
+      assert.deepEqual(value, field in fromListing ? fromListing[field] : manifest[field], field);
+    }
+  });
+
+  test("the plugin folder has a README of at least 40 words outside code blocks", () => {
+    const readme = readFileSync(join(repoRoot, PLUGIN_DIR, "README.md"), "utf8");
+    const words = readme.replace(/```[\s\S]*?```/g, " ").split(/\s+/).filter((word) => /\w/.test(word));
+    assert.ok(words.length >= 40, `${words.length} words`);
+  });
+});
+
+describe("Claude marketplace", () => {
+  test("every entry points at a plugin folder of the same name", () => {
+    assert.ok(claudeMarketplace.owner.name);
+    assert.ok(claudeMarketplace.plugins.length > 0);
+    for (const entry of claudeMarketplace.plugins) {
+      assert.match(entry.source, /^\.\/plugins\//);
+      assert.equal(readJson(join(entry.source, ".claude-plugin", "plugin.json")).name, entry.name);
+    }
+  });
 });

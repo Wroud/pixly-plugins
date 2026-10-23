@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { basename, join } from "node:path";
+import { join } from "node:path";
 import { test } from "node:test";
 import { repoFiles, repoRoot } from "./files.mjs";
 
@@ -24,13 +24,23 @@ const SECRET_PATTERNS = [
   ["email address", /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/],
 ];
 
-const FORBIDDEN_NAMES = [/^\.env(\..*)?$/, /\.pem$/, /\.p12$/, /\.key$/, /^id_[a-z0-9]+$/];
+const FORBIDDEN_NAMES = [
+  /^\.env(\..*)?$/,
+  /\.pem$/,
+  /\.p12$/,
+  /\.key$/,
+  /^id_[a-z0-9]+$/,
+  /^\.DS_Store$/,
+  /^Thumbs\.db$/i,
+  /^desktop\.ini$/i,
+  /^__MACOSX$/,
+];
 
 const files = repoFiles();
 
-test("no credential files are present", () => {
+test("no credential or operating system files are present", () => {
   const offenders = files.filter((file) =>
-    FORBIDDEN_NAMES.some((pattern) => pattern.test(basename(file))),
+    file.split("/").some((segment) => FORBIDDEN_NAMES.some((pattern) => pattern.test(segment))),
   );
   assert.deepEqual(offenders, []);
 });

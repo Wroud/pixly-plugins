@@ -1,0 +1,21 @@
+{
+  "name": "pixly",
+  "displayName": "Pixly",
+  "version": "0.1.0",
+  "description": "Host and manage Minecraft servers on Pixly.",
+  "author": {
+    "name": "Pixly",
+    "url": "https://pixly.gg"
+  },
+  "homepage": "https://pixly.gg",
+  "repository": "https://github.com/Wroud/pixly-plugins",
+  "license": "MIT",
+  "keywords": [
+    "minecraft",
+    "server",
+    "hosting",
+    "mods",
+    "backups"
+  ],
+  "privacyPolicyUrl": "https://pixly.gg/legal/privacy/"
+}
