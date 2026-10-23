@@ -38,3 +38,7 @@ test("commerce is declared", () => {
   assert.equal(typeof review.commerce, "boolean");
   assert.ok(review.commerce_description);
 });
+
+test("the review links a video walkthrough", () => {
+  assert.match(review.demo_recording_url, /^https:\/\/\S+$/);
+});
