@@ -47,4 +47,4 @@ Never perform one of these as a side effect of a different request.
 
 ## Account and billing
 
-Running servers use the balance in the user's Pixly account. These tools cannot add funds or change plans. When the user asks to add funds, or a call fails because of the account balance, say the balance is managed in their Pixly account on pixly.gg; do not link to a billing, top-up or checkout page, suggest an amount to add or describe payment steps.
+Running servers use the balance in the user's Pixly account. Read it with getBalance, this month's spend per server with getMonthSpending and past months with listBills. These tools cannot add funds or change plans. When the user asks to add funds, or a call fails because of the account balance, call getBalance, show the balance and pass on its addFunds text with a link to its dashboardUrl; do not link to a billing, top-up or checkout page, suggest an amount to add or describe payment steps. For anything else the tools cannot do, link the user to the page where they can: the server's webUrl from listServers, or the dashboardUrl from getBalance for the account.
