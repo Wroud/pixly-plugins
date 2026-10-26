@@ -6,9 +6,14 @@
   "engines": {
     "node": ">=24"
   },
+  "config": {
+    "inspector": "@modelcontextprotocol/inspector@2.12.0"
+  },
   "scripts": {
     "test": "node --test 'tests/*.test.mjs'",
     "test:live": "node --test 'tests/live/*.test.mjs'",
+    "inspect": "npx -y $npm_package_config_inspector --config plugins/pixly/.mcp.json",
+    "inspect:cli": "npx -y $npm_package_config_inspector --cli --config plugins/pixly/.mcp.json --server pixly",
     "package": "rm -rf dist && mkdir -p dist && git archive --format=zip --output=dist/pixly.zip HEAD:plugins/pixly -- .codex-plugin .mcp.json skills assets"
   }
 }

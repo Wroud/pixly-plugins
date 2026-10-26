@@ -1,37 +1,40 @@
 import assert from "node:assert/strict";
 import { before, describe, test } from "node:test";
 import { mcpConfig, review } from "../plugin.mjs";
+import { inspect } from "./inspector.mjs";
 
 const HINTS = ["readOnlyHint", "destructiveHint", "openWorldHint"];
 const MIN_DESCRIPTION_LENGTH = 40;
+const PUBLIC_TOOLS = ["getPricingCatalog", "getBedrockRange", "getLoaderVersions"];
+const EXIT_AUTH_REQUIRED = 3;
 
 const [server] = Object.values(mcpConfig.mcpServers);
-
-async function rpc(id, method, params) {
-  const response = await fetch(server.url, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      accept: "application/json, text/event-stream",
-    },
-    body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
-  });
-  assert.equal(response.status, 200, `${method} answered ${response.status}`);
-  const message = await response.json();
-  assert.equal(message.error, undefined, JSON.stringify(message.error));
-  return message.result;
-}
 
 describe(`tools served by ${server.url}`, () => {
   let tools;
 
   before(async () => {
-    await rpc(1, "initialize", {
-      protocolVersion: "2025-11-25",
-      capabilities: {},
-      clientInfo: { name: "pixly-plugins-test", version: "0.0.0" },
-    });
-    tools = (await rpc(2, "tools/list", {})).tools;
+    const listing = await inspect("--method", "tools/list");
+    assert.equal(listing.code, 0, JSON.stringify(listing.error));
+    tools = listing.result.tools;
+  });
+
+  test("the server initializes with instructions", async () => {
+    const { code, result, error } = await inspect("--method", "initialize");
+    assert.equal(code, 0, JSON.stringify(error));
+    assert.ok(result.capabilities.tools);
+    assert.match(result.instructions ?? "", /\S/);
+  });
+
+  test("tool schemas carry no error-severity portability problem", async () => {
+    const { code, schemaFindings } = await inspect("--method", "tools/list", "--strict");
+    const errors = (schemaFindings ?? []).flatMap((tool) =>
+      tool.findings
+        .filter((finding) => finding.severity === "error")
+        .map((finding) => `${tool.toolName} ${finding.schema}.${finding.path}: ${finding.rule}`),
+    );
+    assert.deepEqual(errors, []);
+    assert.equal(code, 0);
   });
 
   test("tool names are unique", () => {
@@ -69,5 +72,19 @@ describe(`tools served by ${server.url}`, () => {
       .flatMap((testCase) => testCase.tools_triggered.split(",").map((name) => name.trim()))
       .filter((name) => !names.has(name));
     assert.deepEqual(unknown, []);
+  });
+
+  test("public read-only tools answer without signing in", async () => {
+    for (const name of PUBLIC_TOOLS) {
+      const { code, result, error } = await inspect("--method", "tools/call", "--tool-name", name);
+      assert.equal(code, 0, `${name}: ${JSON.stringify(error)}`);
+      assert.notEqual(result.isError, true, name);
+    }
+  });
+
+  test("account tools ask the client to sign in", async () => {
+    const { code, error } = await inspect("--method", "tools/call", "--tool-name", "listServers");
+    assert.equal(code, EXIT_AUTH_REQUIRED, JSON.stringify(error));
+    assert.equal(error.code, "auth_required");
   });
 });
