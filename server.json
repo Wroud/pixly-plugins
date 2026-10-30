@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "gg.pixly/mcp",
+  "title": "Pixly",
+  "description": "Host and manage Minecraft servers, mods, worlds and backups on Pixly.",
+  "repository": {
+    "url": "https://github.com/Wroud/pixly-plugins",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "websiteUrl": "https://pixly.gg",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://pixly.gg/api/mcp"
+    }
+  ]
+}
